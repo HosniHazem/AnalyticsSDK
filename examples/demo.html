@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics SDK Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        .info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .log {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-bottom: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Analytics SDK Demo</h1>
+        <p class="subtitle">Test the analytics tracking functionality</p>
+
+        <div class="section">
+            <h3>1. User Identification</h3>
+            <input type="text" id="userId" placeholder="User ID" value="user-123">
+            <input type="email" id="userEmail" placeholder="Email" value="test@example.com">
+            <button onclick="identifyUser()">Identify User</button>
+            <div id="userInfo" class="info" style="display:none;"></div>
+        </div>
+
+        <div class="section">
+            <h3>2. Track Events</h3>
+            <button onclick="trackEvent('button_click', {button: 'demo'})">Track Button Click</button>
+            <button onclick="trackEvent('page_view', {page: '/demo'})">Track Page View</button>
+            <button onclick="trackEvent('purchase', {amount: 99.99, item: 'Widget'})">Track Purchase</button>
+        </div>
+
+        <div class="section">
+            <h3>3. Custom Event</h3>
+            <input type="text" id="eventName" placeholder="Event name" value="custom_event">
+            <button onclick="trackCustomEvent()">Track Custom Event</button>
+        </div>
+
+        <div class="section">
+            <h3>4. Queue Management</h3>
+            <button onclick="flushEvents()">Flush Events Now</button>
+            <button onclick="resetSDK()">Reset SDK</button>
+        </div>
+
+        <div class="section">
+            <h3>Event Log</h3>
+            <div id="eventLog" class="log">
+                <div class="log-entry">SDK ready. Start tracking events...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load the SDK -->
+    <script type="module">
+        // Import the SDK (in production, you'd use the built version)
+        import AnalyticsClient from '../dist/index.mjs';
+
+        // Initialize the SDK
+        window.analytics = new AnalyticsClient({
+            apiKey: 'demo-api-key-12345',
+            endpoint: 'https://api.example.com/events',
+            debug: true,
+            batchSize: 3,
+            flushInterval: 10000,
+            autoTrack: false // Disable auto-tracking for demo
+        });
+
+        // Helper to log events
+        function logEvent(message, data) {
+            const log = document.getElementById('eventLog');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            if (data) {
+                entry.innerHTML += `<br><code>${JSON.stringify(data, null, 2)}</code>`;
+            }
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // Make functions available globally
+        window.identifyUser = function() {
+            const userId = document.getElementById('userId').value;
+            const email = document.getElementById('userEmail').value;
+            
+            try {
+                window.analytics.identify({
+                    id: userId,
+                    email: email,
+                    name: 'Demo User'
+                });
+                
+                const userInfo = document.getElementById('userInfo');
+                userInfo.style.display = 'block';
+                userInfo.innerHTML = `✅ User identified: ${userId} (${email})`;
+                
+                logEvent('User Identified', { userId, email });
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        };
+
+        window.trackEvent = function(eventName, properties) {
+            try {
+                window.analytics.track(eventName, properties);
+                logEvent(`Event Tracked: ${eventName}`, properties);
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        };
+
+        window.trackCustomEvent = function() {
+            const eventName = document.getElementById('eventName').value;
+            if (!eventName) {
+                alert('Please enter an event name');
+                return;
+            }
+            trackEvent(eventName, { custom: true, timestamp: Date.now() });
+        };
+
+        window.flushEvents = async function() {
+            try {
+                await window.analytics.flush();
+                logEvent('Events flushed manually');
+                alert('Events flushed successfully!');
+            } catch (error) {
+                alert('Error flushing events: ' + error.message);
+            }
+        };
+
+        window.resetSDK = function() {
+            if (confirm('Are you sure you want to reset the SDK? This will clear all data.')) {
+                window.analytics.reset();
+                document.getElementById('userInfo').style.display = 'none';
+                logEvent('SDK Reset', { sessionId: window.analytics.getSessionId() });
+            }
+        };
+
+        // Log initialization
+        logEvent('SDK Initialized', {
+            sessionId: window.analytics.getSessionId(),
+            debug: true
+        });
+    </script>
+</body>
+</html>
