@@ -40,6 +40,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/HosniHazem/analytics-sdk.git"
+    "url": "git+https://github.com/HosniHazem/AnalyticsSDK.git"
+  },
+  "dependencies": {
+    "@haz3m/analytics-sdk": "^1.0.0"
   }
 }

@@ -16,19 +16,19 @@ A lightweight, TypeScript-based analytics SDK for web applications with automati
 ## Installation
 
 ```bash
-npm install @myorg/analytics-sdk
+npm install @haz3m/analytics-sdk
 ```
 
 Or using yarn:
 
 ```bash
-yarn add @myorg/analytics-sdk
+yarn add @haz3m/analytics-sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import AnalyticsClient from '@myorg/analytics-sdk';
+import AnalyticsClient from '@haz3m/analytics-sdk';
 
 // Initialize the SDK
 const analytics = new AnalyticsClient({
@@ -185,7 +185,7 @@ Failed events are automatically retried on the next flush attempt.
 Full TypeScript definitions are included:
 
 ```typescript
-import { AnalyticsClient, SDKConfig, Event, User } from '@myorg/analytics-sdk';
+import { AnalyticsClient, SDKConfig, Event, User } from '@haz3m/analytics-sdk';
 
 const config: SDKConfig = {
   apiKey: 'your-api-key',
@@ -283,7 +283,7 @@ After publishing to NPM, the package is available via CDN:
 ```html
 <!-- ES Module -->
 <script type="module">
-  import AnalyticsClient from 'https://unpkg.com/@myorg/analytics-sdk@latest/dist/index.mjs';
+  import AnalyticsClient from 'https://unpkg.com/@haz3m/analytics-sdk@latest/dist/index.mjs';
   
   const analytics = new AnalyticsClient({
     apiKey: 'your-api-key'
